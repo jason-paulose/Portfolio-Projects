@@ -1,8 +1,15 @@
---Update the table with the proper date format
+   --Update the table with the proper date format
 UPDATE AdWorks..DimEmployee
 SET HireDate = FORMAT(HireDate, 'd','us'),
 BirthDate = FORMAT(BirthDate, 'd','us'),
 StartDate = FORMAT(StartDate, 'd','us')
+
+-- handle null value in the status column; if NULL, assume they are terminated
+SELECT FirstName, LastName, ISNULL(Status, 'Terminated') AS TrueStatus
+FROM Adworks..DimEmployee
+
+UPDATE AdWorks..DimEmployee
+SET Status = ISNULL(Status, 'Terminated')
 
 -- we want to ensure all SalesTerritoryKeys are type char two characters; let's check
 SELECT DISTINCT s.SalesTerritoryRegion AS Region, LEN(e.SalesTerritoryKey) AS SalesTerritoryKeyLength
