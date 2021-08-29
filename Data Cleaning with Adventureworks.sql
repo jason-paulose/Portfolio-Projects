@@ -1,3 +1,9 @@
+--Update the table with the proper date format
+UPDATE AdWorks..DimEmployee
+SET HireDate = FORMAT(HireDate, 'd','us'),
+BirthDate = FORMAT(BirthDate, 'd','us'),
+StartDate = FORMAT(StartDate, 'd','us')
+
 -- we want to ensure all SalesTerritoryKeys are type char two characters; let's check
 SELECT DISTINCT s.SalesTerritoryRegion AS Region, LEN(e.SalesTerritoryKey) AS SalesTerritoryKeyLength
 FROM AdWorks..DimEmployee e INNER JOIN AdWorks..DimSalesTerritory s ON e.SalesTerritoryKey = s.SalesTerritoryKey
@@ -15,12 +21,3 @@ CASE
 END AS SalesTerritoryKey
 FROM AdWorks..DimEmployee e INNER JOIN AdWorks..DimSalesTerritory s ON e.SalesTerritoryKey = s.SalesTerritoryKey
 ORDER BY 2
-
--- we want to ensure that the department is only one word; let's check
-SELECT DISTINCT DepartmentName
-FROM AdWorks..DimEmployee;
-
--- very few departments only have one word; account for this error without updating the table
-SELECT value
-FROM AdWorks..DimEmployee
-	CROSS APPLY STRING_SPLIT(DepartmentName, ' ')
