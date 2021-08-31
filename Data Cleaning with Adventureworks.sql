@@ -53,11 +53,29 @@ ALTER TABLE Adworks..DimEmployee
 ALTER COLUMN Gender NVARCHAR(10)
 
 UPDATE AdWorks..DimEmployee
-SET Gender = CASE
-				WHEN Gender = 'F' THEN 'Female'
-				ELSE 'Male'
-			 END
+SET Gender = 
+CASE
+	WHEN Gender = 'F' THEN 'Female'
+	ELSE 'Male'
+END
 
 -- delete unused columns
 ALTER TABLE Adworks..DimEmployee
 DROP COLUMN ParentEmployeeNationalIDAlternateKey, MiddleName, SalesPersonFlag
+
+-- alternatively, use a temp table to get the desired subset of data
+DROP TABLE IF EXISTS #temp_Employee
+CREATE TABLE #temp_Employee (
+EmployeeKey int,
+FirstName nvarchar(50),
+LastName nvarchar(50),
+Title nvarchar(50),
+Status nvarchar(50),
+HireDate date)
+
+INSERT INTO #temp_Employee
+SELECT EmployeeKey, FirstName, LastName, Title, Status, HireDate
+FROM AdWorks..DimEmployee
+
+SELECT *
+FROM #temp_Employee
