@@ -1,6 +1,7 @@
  SELECT *
  FROM AdWorks..DimEmployee
- 
+
+
  --Standardize dates upon retrieval
  SELECT FORMAT(HireDate, 'MMM dd yyyy') AS ConvertedHireDate,
  FORMAT(BirthDate, 'MMM dd yyyy') AS ConvertedBirthDate,
@@ -14,6 +15,11 @@ FROM Adworks..DimEmployee
 
 UPDATE AdWorks..DimEmployee
 SET Status = ISNULL(Status, 'Terminated')
+
+-- we have been told everyone in with SalesTerritoryKey of 1 has the wrong ParentEmployeeKey; delete the incorrect values
+UPDATE AdWorks..DimEmployee
+SET ParentEmployeeKey = NULL
+WHERE SalesTerritoryKey = 1
 
 -- we want to ensure all SalesTerritoryKeys are type char two characters; let's check
 SELECT DISTINCT s.SalesTerritoryRegion AS Region, LEN(e.SalesTerritoryKey) AS SalesTerritoryKeyLength
@@ -38,7 +44,7 @@ SELECT SUBSTRING(EmailAddress, 1, CHARINDEX('@', EmailAddress)-1)
 FROM Adworks..DimEmployee
 
 ALTER TABLE Adworks..DimEmployee
-ADD UserName Nvarchar(255)
+ADD UserName nvarchar(255)
 
 UPDATE AdWorks..DimEmployee
 SET UserName = SUBSTRING(EmailAddress, 1, CHARINDEX('@', EmailAddress)-1)
@@ -66,12 +72,12 @@ DROP COLUMN ParentEmployeeNationalIDAlternateKey, MiddleName, SalesPersonFlag
 -- alternatively, use a temp table to get the desired subset of data
 DROP TABLE IF EXISTS #temp_Employee
 CREATE TABLE #temp_Employee (
-EmployeeKey int,
-FirstName nvarchar(50),
-LastName nvarchar(50),
+EmployeeKey int PRIMARY KEY,
+FirstName nvarchar(50) NOT NULL,
+LastName nvarchar(50) NOT NULL,
 Title nvarchar(50),
-Status nvarchar(50),
-HireDate date)
+Status nvarchar(50) NOT NULL,
+HireDate date NOT NULL)
 
 INSERT INTO #temp_Employee
 SELECT EmployeeKey, FirstName, LastName, Title, Status, HireDate
@@ -79,3 +85,4 @@ FROM AdWorks..DimEmployee
 
 SELECT *
 FROM #temp_Employee
+
